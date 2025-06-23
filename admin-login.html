@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login - GreenBasket</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      width: 300px;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    input {
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    #error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="adminLogin()">Login</button>
+    <p id="error"></p>
+  </div>
+
+  <script>
+    function adminLogin() {  
+      const username = document.getElementById("username").value;    
+      const password = document.getElementById("password").value;
+
+      if (username === "Admin-GreenBasket" && password === "greenbasket123") {
+        localStorage.setItem("isAdmin", "true");
+        window.location.href = "admin-dashboard.html";
+      } else {
+        document.getElementById("error").textContent = "Invalid credentials!";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard - GreenBasket</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    #darkModeToggle {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(to right, #ffffff, #e0e0e0);
+      color: #2c3e50;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    #darkModeToggle:hover {
+      background: linear-gradient(to right, #bdc3c7, #95a5a6);
+      color: #000;
+    }
+
+    #filters {
+      margin: 20px auto;
+      max-width: 900px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: 0 20px;
+      gap: 15px;
+    }
+
+    select, input[type="text"] {
+      padding: 10px 14px;
+      font-size: 1rem;
+      border-radius: 30px;
+      border: 1px solid #ccc;
+      background: white;
+      color: #2c3e50;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      flex: 1;
+      min-width: 200px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 20px auto 50px;
+      padding: 0 20px;
+    }
+
+    .order {
+      background: white;
+      border-radius: 8px;
+      padding: 20px 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+
+    .order-title {
+      margin-top: 0;
+      color: #2980b9;
+      font-weight: 600;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 8px 0 12px;
+      color: #555;
+    }
+
+    ul li {
+      margin-bottom: 5px;
+    }
+
+    .status-select {
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-weight: 600;
+      color: #2c3e50;
+      background: #ecf0f1;
+      border: 1px solid #7f8c8d;
+      cursor: pointer;
+    }
+
+    .empty-msg {
+      text-align: center;
+      margin-top: 100px;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: #888;
+    }
+
+    /* DARK MODE */
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #eee;
+    }
+
+    body.dark-mode header {
+      background-color: #34495e;
+    }
+
+    body.dark-mode .order {
+      background: #2c2c2c;
+      color: #ddd;
+    }
+
+    body.dark-mode select,
+    body.dark-mode input[type="text"] {
+      background: #333;
+      color: #eee;
+      border: 1px solid #666;
+    }
+
+    body.dark-mode .status-select {
+      background: #333;
+      color: #eee;
+    }
+
+    body.dark-mode #darkModeToggle {
+      background: #333;
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Order History — GreenBasket
+  <button id="darkModeToggle">🌙</button>
+</header>
+
+<section id="filters">
+  <input type="text" id="filterUser" placeholder="Search by User Name">
+  <select id="filterStatus">
+    <option value="">All Statuses</option>
+    <option value="Pending">Pending</option>
+    <option value="Processing">Processing</option>
+    <option value="Shipped">Shipped</option>
+    <option value="Out For Delivery">Out For Delivery</option>
+    <option value="Delivered">Delivered</option>
+    <option value="Cancelled">Cancelled</option>
+  </select>
+  <select id="filterDate">
+    <option value="desc">Newest First</option>
+    <option value="asc">Oldest First</option>
+  </select>
+</section>
+
+<main>
+  <div id="orderList"></div>
+</main>
+
+<script>
+  const orderList = document.getElementById('orderList');
+  const userInput = document.getElementById('filterUser');
+  const statusFilter = document.getElementById('filterStatus');
+  const dateFilter = document.getElementById('filterDate');
+
+  let orders = JSON.parse(localStorage.getItem('orderHistory')) || [];
+
+  // Add timestamp if missing
+  orders.forEach(order => {
+    if (!order.timestamp) order.timestamp = new Date().toISOString();
+  });
+
+  function parseDate(order) {
+    const rawDate = order.timestamp || order.dateTime || order.date || order.createdAt || null;
+    const parsed = new Date(rawDate);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
+  }
+
+  function renderOrders(filtered = orders) {
+    orderList.innerHTML = '';
+
+    if (!filtered.length) {
+      orderList.innerHTML = '<p class="empty-msg">No orders found.</p>';
+      return;
+    }
+
+    filtered.forEach((order, index) => {
+      const date = parseDate(order);
+      const items = order.cart || order.items || [];
+
+      const delivery = order.delivery || {};
+      const userName = delivery.fullName || order.customer || order.name || 'N/A';
+      const phone = delivery.phoneNumber || order.phone || order.mobile || 'N/A';
+      const address = delivery.fullAddress || order.address || order.location || 'N/A';
+      const pin = delivery.pincode || order.pincode || '';
+      const payment = order.payment || order.paymentMethod || order.method || 'N/A';
+      const total = order.total || 0;
+
+      const div = document.createElement('div');
+      div.className = 'order';
+
+      div.innerHTML = `
+        <h3 class="order-title">Order #${index + 1} — ${date.toLocaleString()}</h3>
+        <p><strong>User:</strong> ${userName}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Payment:</strong> ${payment}</p>
+        <p><strong>Total:</strong> ₹${total}</p>
+        <p><strong>Status:</strong> 
+          <select class="status-select" data-index="${index}">
+            <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+            <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+            <option value="Out For Delivery" ${order.status === 'Out For Delivery' ? 'selected' : ''}>Out For Delivery</option>
+            <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </p>
+        <ul>
+          ${items.map(i => `<li>${i.name} — ₹${i.price} × ${i.quantity}</li>`).join('')}
+        </ul>
+        <p><strong>Address:</strong> ${address} ${pin}</p>
+        <button class="delete-btn" data-index="${index}" style="
+          padding: 6px 12px;
+          background: crimson;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-weight: bold;
+          margin-top: 10px;
+        ">🗑️ Delete Order</button>
+      `;
+
+      orderList.appendChild(div);
+    });
+
+    // Handle status change
+    document.querySelectorAll('.status-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const i = e.target.getAttribute('data-index');
+        orders[i].status = e.target.value;
+        localStorage.setItem('orderHistory', JSON.stringify(orders));
+        applyFilters();
+      });
+    });
+
+    // Handle order deletion
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const i = e.target.getAttribute('data-index');
+        if (confirm(`Are you sure you want to delete Order #${parseInt(i) + 1}?`)) {
+          orders.splice(i, 1);
+          localStorage.setItem('orderHistory', JSON.stringify(orders));
+          applyFilters();
+        }
+      });
+    });
+  }
+
+  function applyFilters() {
+    let filtered = [...orders];
+
+    const nameQuery = userInput.value.trim().toLowerCase();
+    const statusQuery = statusFilter.value;
+    const dateSort = dateFilter.value;
+
+    if (nameQuery) {
+      filtered = filtered.filter(o =>
+        (o.delivery?.fullName || o.customer || o.name || '').toLowerCase().includes(nameQuery)
+      );
+    }
+
+    if (statusQuery) {
+      filtered = filtered.filter(o => o.status === statusQuery);
+    }
+
+    filtered.sort((a, b) => {
+      const d1 = parseDate(a), d2 = parseDate(b);
+      return dateSort === 'asc' ? d1 - d2 : d2 - d1;
+    });
+
+    renderOrders(filtered);
+  }
+
+  userInput.addEventListener('input', applyFilters);
+  statusFilter.addEventListener('change', applyFilters);
+  dateFilter.addEventListener('change', applyFilters);
+
+  renderOrders();
+
+  const darkToggle = document.getElementById('darkModeToggle');
+  const theme = localStorage.getItem('adminDarkMode');
+  if (theme === 'enabled') document.body.classList.add('dark-mode');
+
+  darkToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('adminDarkMode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+  });
+</script>
+
+</body>
+</html>

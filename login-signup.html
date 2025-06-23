@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup</title>
+    <link rel="stylesheet" href="login-signup.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons/css/boxicons.min.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="form-box">
+            <h2 id="form-title">Login</h2>
+            <form id="auth-form">
+                <!-- Name Field (Only in Signup Mode) -->
+                <div class="input-group name-group" style="display: none;">
+                    <i class='bx bx-user'></i>
+                    <input type="text" id="name" placeholder="Name">
+                </div>
+                
+                <div class="input-group">
+                    <i class='bx bx-envelope'></i>
+                    <input type="email" id="email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class='bx bx-lock'></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+
+                <!-- Extra Options (Only in Login Mode) -->
+                <div class="extra-options">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="auth-btn">Login</button>
+                <p class="toggle-text">Don't have an account? <a href="#" id="toggle-form">Sign Up</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="login-signup.js"></script>
+</body>
+</html>

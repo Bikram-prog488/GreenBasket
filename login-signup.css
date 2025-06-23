@@ -1,0 +1,107 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #4CAF50, #2E7D32);
+}
+
+/* Container */
+.auth-container {
+    background: white;
+    padding: 30px;
+    width: 350px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Form */
+h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+}
+
+.input-group i {
+    margin-right: 10px;
+    color: #4CAF50;
+}
+
+input {
+    border: none;
+    background: none;
+    outline: none;
+    flex: 1;
+}
+
+/* Extra Options */
+.extra-options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.extra-options a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.auth-btn:hover {
+    background: #388E3C;
+}
+
+/* Toggle Link */
+.toggle-text {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.toggle-text a {
+    color: #4CAF50;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.user-display {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.user-display a {
+    color: red;
+    font-size: 14px;
+    margin-left: 10px;
+    text-decoration: none;
+}

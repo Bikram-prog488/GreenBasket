@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel – GreenBasket</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f1f9f3, #e9f5ec);
+      margin: 0;
+      padding: 30px 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2d6a4f;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .controls label {
+      font-weight: bold;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+    .controls select {
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: border-color 0.3s ease;
+    }
+    .controls select:hover {
+      border-color: #2d6a4f;
+    }
+    .order-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .order-card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .order-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .status-select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .item-list {
+      margin-top: 15px;
+      padding-left: 20px;
+      font-size: 15px;
+    }
+    .item-list li {
+      margin-bottom: 5px;
+    }
+    .delivery-info {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #444;
+      background: #f0f4f3;
+      padding: 10px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+    @media screen and (max-width: 600px) {
+      .order-header {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🛒 Admin Order Panel</h1>
+
+  <div class="controls">
+    <label for="statusFilter">Filter by Status:</label>
+    <select id="statusFilter">
+      <option value="All">All</option>
+      <option value="Pending">Pending</option>
+      <option value="Processing">Processing</option>
+      <option value="Delivered">Delivered</option>
+    </select>
+  </div>
+
+  <div class="order-container" id="orderContainer"></div>
+
+  <script>
+    const orderContainer = document.getElementById("orderContainer");
+    const statusFilter = document.getElementById("statusFilter");
+
+    // Inject test data if not present
+    if (!localStorage.getItem("orders")) {
+      const sampleOrder = {
+        customer: "Bikram Singh",
+        date: new Date().toLocaleString(),
+        total: "299.00",
+        status: "Pending",
+        items: [
+          { name: "Organic Banana", quantity: 2, price: 30 },
+          { name: "Fresh Milk", quantity: 1, price: 50 }
+        ],
+        delivery: {
+          fullName: "Bikram Singh",
+          phoneNumber: "9876543210",
+          pincode: "700001",
+          fullAddress: "Kolkata, West Bengal"
+        }
+      };
+
+      localStorage.setItem("orders", JSON.stringify([sampleOrder]));
+      localStorage.setItem("orderHistory", JSON.stringify([sampleOrder]));
+    }
+
+    function loadOrders() {
+      const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      const filter = statusFilter.value;
+      orderContainer.innerHTML = "";
+
+      orders.forEach((order, index) => {
+        if (filter !== "All" && order.status !== filter) return;
+
+        const fullName = order.delivery?.fullName || order.fullName || order.customer || order.name || "N/A";
+        const phone = order.delivery?.phoneNumber || order.phoneNumber || order.phone || order.deliveryPhone || "N/A";
+        const pincode = order.delivery?.pincode || order.pincode || order.deliveryPincode || "N/A";
+        const fullAddress = order.delivery?.fullAddress || order.fullAddress || order.address || order.deliveryAddress || "N/A";
+
+        const orderDate = order.date || "Invalid Date";
+        const total = order.total || "0.00";
+
+        const card = document.createElement("div");
+        card.className = "order-card";
+
+        card.innerHTML = `
+          <div class="order-header">
+            <div>
+              <strong>Customer:</strong> ${fullName}<br>
+              <strong>Date:</strong> ${orderDate}<br>
+              <strong>Total:</strong> ₹${total}
+              <div class="delivery-info">
+                <strong>Delivery Info:</strong><br>
+                Name: ${fullName}<br>
+                Phone: ${phone}<br>
+                Pincode: ${pincode}<br>
+                Address: ${fullAddress}
+              </div>
+            </div>
+            <div>
+              <label for="status">Change Status:</label><br>
+              <select class="status-select" data-index="${index}">
+                <option ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+                <option ${order.status === "Processing" ? "selected" : ""}>Processing</option>
+                <option ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
+              </select>
+            </div>
+          </div>
+          <ul class="item-list">
+            ${order.items.map(item => `<li>${item.name} x ${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}</li>`).join("")}
+          </ul>
+        `;
+        orderContainer.appendChild(card);
+      });
+
+      document.querySelectorAll(".status-select").forEach(select => {
+        select.addEventListener("change", (e) => {
+          const idx = e.target.getAttribute("data-index");
+          const newStatus = e.target.value;
+
+          const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+          orders[idx].status = newStatus;
+          localStorage.setItem("orders", JSON.stringify(orders));
+
+          const customerName = orders[idx].delivery?.fullName || orders[idx].fullName || orders[idx].customer;
+          const orderDate = orders[idx].date;
+
+          let history = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+          history = history.map(h => {
+            if (
+              h.date === orderDate &&
+              (h.delivery?.fullName === customerName || h.customer === customerName || h.fullName === customerName)
+            ) {
+              h.status = newStatus;
+            }
+            return h;
+          });
+          localStorage.setItem("orderHistory", JSON.stringify(history));
+        });
+      });
+    }
+
+    statusFilter.addEventListener("change", loadOrders);
+    window.addEventListener("load", loadOrders);
+  </script>
+
+</body>
+</html>
